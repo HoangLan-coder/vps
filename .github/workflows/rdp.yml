@@ -25,23 +25,11 @@ jobs:
           New-LocalUser "DucthengTechDz" -Password (ConvertTo-SecureString "W1nd0ws-P4ssw0rd-2025!" -AsPlainText -Force)
           Add-LocalGroupMember -Group "Remote Desktop Users" -Member "DucthengTechDz"
           Add-LocalGroupMember -Group "Administrators" -Member "DucthengTechDz"
-          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
           
           Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name "fEnableVirtualizedGraphics" -Value 1 -Type DWord -Force
           Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name "AVCHardwareEncodePreferred" -Value 1 -Type DWord -Force
-          Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name "AVC444ModePreferred" -Value 1 -Type DWord -Force
           Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name "MinFrameRate" -Value 120 -Type DWord -Force
-          Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name "MaxCompression" -Value 0 -Type DWord -Force
-          Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "fLowBandwidth" -Value 0 -Type DWord -Force
           Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name "fDisableWallpaper" -Value 1 -Type DWord -Force
-          Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name "fDisableFullWindowDrag" -Value 1 -Type DWord -Force
-          Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name "fDisableMenuAnims" -Value 1 -Type DWord -Force
-          Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name "fDisableThemes" -Value 1 -Type DWord -Force
-          Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile' -Name "SystemResponsiveness" -Value 0 -Type DWord -Force
-          Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile' -Name "NetworkThrottlingIndex" -Value 0xffffffff -Type DWord -Force
-          Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "fDisableAudioCapture" -Value 0 -Type DWord -Force
-          Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name "AudioQualityMode" -Value 2 -Type DWord -Force
-          Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name "MaxOutputBufferSize" -Value 16384 -Type DWord -Force
           powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a
           
           Start-Process -FilePath ".\ngrok\ngrok.exe" -ArgumentList "tcp 3389 --region=${{ github.event.inputs.ngrok_region }}" -NoNewWindow
@@ -50,8 +38,14 @@ jobs:
           $response = Invoke-WebRequest -Uri "http://127.0.0.1:4040/api/tunnels" -UseBasicParsing
           $tunnelUrl = ($response.Content | ConvertFrom-Json).tunnels[0].public_url -replace 'tcp://', ''
           
-          Write-Host "NGROK_URL=$tunnelUrl"
-          Write-Host "RDP_USER=DucthengTechDz"
-          Write-Host "RDP_PASS=W1nd0ws-P4ssw0rd-2025!"
+          # IN RA FORMAT ĐẶC BIỆT ĐỂ GITHUB HIỂN THỊ
+          echo "::notice::NGROK_URL=$tunnelUrl"
+          echo "::notice::RDP_USER=DucthengTechDz"
+          echo "::notice::RDP_PASS=W1nd0ws-P4ssw0rd-2025!"
+          
+          # HOẶC IN RA STEP SUMMARY
+          echo "NGROK_URL=$tunnelUrl" >> $env:GITHUB_STEP_SUMMARY
+          echo "RDP_USER=DucthengTechDz" >> $env:GITHUB_STEP_SUMMARY
+          echo "RDP_PASS=W1nd0ws-P4ssw0rd-2025!" >> $env:GITHUB_STEP_SUMMARY
           
           Start-Sleep -Seconds 86400
